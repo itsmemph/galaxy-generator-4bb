@@ -158,7 +158,31 @@
         lastY = e.clientY;
       }
     });
+// Xử lý chạm trên thiết bị di động
+scene.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    isMouseDown = true;
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+  }
+});
 
+scene.addEventListener('touchmove', (e) => {
+  if (isMouseDown && e.touches.length === 1) {
+    const dx = e.touches[0].clientX - lastX;
+    const dy = e.touches[0].clientY - lastY;
+    rotY += dx * 0.2;
+    rotX -= dy * 0.2;
+    scene.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+  }
+});
+
+scene.addEventListener('touchend', () => {
+  isMouseDown = false;
+});
+    
     // Phát nhạc sau click đầu tiên
     window.addEventListener('click', () => {
       const audio = document.getElementById('bg-music');
