@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trang Web 3D Dễ Thương</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Patrick+Hand&display=swap');      
+      html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: rgb(0, 0, 0);
+      perspective: 1000px;
+      font-family: "Be Vietnam Pro", sans-serif;}
+
+    #scene {
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transform: rotateX(0deg) rotateY(0deg);
+    }
+
+    #container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .falling-text, .falling-img {
+      position: absolute;
+      top: -50px;
+      color: #e9b2bd;
+      animation: fall linear;
+      white-space: nowrap;      
+      text-shadow: 0 0 50px #e20026, 0 0 50px #f6aacb;
+      transform-style: preserve-3d; 
+      backface-visibility: hidden;
+      will-change: transform;
+      pointer-events: none;
+    }
+
+    .falling-img img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 7px;
+      box-shadow:
+        0 0 8px #ff4ecb,
+        0 0 15px #ff4ecb,
+        0 0 30px #ff4ecb;
+        animation: glow 2.5s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) translateZ(var(--depth, 0px));
+      }
+    }
+
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <audio id="bg-music" src="./assets/bg-ms.mp3" autoplay loop></audio>
+
+  <div id="scene">
+    <div id="container"></div>
+  </div>
+
+  <script>
+    const container = document.getElementById('container');
+    const chars = ['🦥', 
+                    '🐅', 
+                    'e be quoc te thieu nhi heppi heppi',
+                    'my lil sloth cuti cuti',  
+                    '💗',
+                    '💖',
+                    '❤️‍🔥',
+                    'a iu iu e be nhammm', 
+                    'e be iu iu cua a', 
+                    'wo ai ni',
+                    '✋😎🤚'];
+    const imageList = [
+      './assets/img1.jpg',
+      './assets/img2.jpg', 
+      './assets/img3.jpg', 
+        './assets/img4.jpg',
+        './assets/img5.jpg',
+        './assets/img6.jpg',
+        './assets/img7.jpg',
+        './assets/img8.jpg',
+    ];
+
+    function createFallingElement(type = 'text') {
+      const el = document.createElement('div');
+      el.classList.add(type === 'image' ? 'falling-img' : 'falling-text');
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.animationDuration = (3 + Math.random() * 2) + 's';
+
+      // Random chiều sâu
+      const rand = Math.random();
+      let depth = 0;
+      if (rand < 0.15) depth = 100;      // trước
+      else if (rand > 0.85) depth = -100; // sau
+
+      el.style.setProperty('--depth', `${depth}px`);
+      el.style.transform = `translateZ(${depth}px)`;
+
+      if (type === 'text') {
+        el.textContent = chars[Math.floor(Math.random() * chars.length)];
+        el.style.fontSize = (1.5 + Math.random()) + 'em';
+        if (depth === -200) el.style.opacity = 0.6;
+      } else {
+        const img = document.createElement('img');
+        img.src = imageList[Math.floor(Math.random() * imageList.length)];
+        el.appendChild(img);
+        if (depth === -200) el.style.opacity = 0.7;
+      }
+
+      container.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+
+    // Tạo phần tử rơi liên tục
+    setInterval(() => {
+      const isImage = Math.random() > 0.65;
+      createFallingElement(isImage ? 'image' : 'text');
+    }, 345); // chỉnh số lượng rơi
+
+    // Xoay 3D theo chuột
+    const scene = document.getElementById('scene');
+    let rotX = 0, rotY = 0;
+    let isMouseDown = false;
+    let lastX, lastY;
+
+    document.addEventListener('mousedown', (e) => {
+      isMouseDown = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    document.addEventListener('mouseup', () => {
+      isMouseDown = false;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isMouseDown) {
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        rotY += dx * 0.2;
+        rotX -= dy * 0.2;
+        scene.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      }
+    });
+
+    // Phát nhạc sau click đầu tiên
+    window.addEventListener('click', () => {
+      const audio = document.getElementById('bg-music');
+      if (audio && audio.paused) {
+        audio.play().catch(() => console.log("Trình duyệt chặn phát nhạc"));
+      }
+    }, { once: true });
+  </script>
+</body>
+</html>
